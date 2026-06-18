@@ -1,4 +1,4 @@
-AL EXAM TIMER
+# AL EXAM TIMER
 
 AL EXAM TIMER is a web-based countdown system created for Advanced Level (A/L) students. The purpose of this project is to help students stay aware of the remaining time until their examination while providing a clean, motivating, and distraction-free interface.
 
@@ -23,7 +23,7 @@ In addition to showing the remaining time, the system displays motivational mess
 
 ## Main Features
 
-### 📌 Student Countdown Interface
+### Student Countdown Interface
 
 The countdown page includes:
 
@@ -39,7 +39,7 @@ The countdown page includes:
 
 ---
 
-### 📌 Administrator Panel
+### Administrator Panel
 
 The administrator page allows users to:
 
@@ -50,7 +50,7 @@ The administrator page allows users to:
 
 ---
 
-### 📌 Database Integration
+### Database Integration
 
 MongoDB is used to store the exam date and time. This ensures that:
 
@@ -65,111 +65,34 @@ MongoDB is used to store the exam date and time. This ensures that:
 
 This project was developed using:
 
-### Frontend
+### Frontend and Backend
 - HTML5
 - CSS3
 - JavaScript
 
-### Backend
-- Node.js
-- Express.js
-
-### Database
-- MongoDB
-- Mongoose
-
----
-
 ## Folder Structure
 
 ```text
-al-exam-timer/
-│
-├── server.js
-├── .env
-├── package.json
-│
-├── models/
-│      Timer.js
-│
-├── routes/
-│      timerRoutes.js
-│
-├── public/
-│
-│   ├── countdown/
-│   │      index.html
-│   │      style.css
-│   │      script.js
-│   │
-│   ├── admin/
-│   │      index.html
-│   │      style.css
-│   │      script.js
-│   │
-│   └── fonts/
-│          Microsport.ttf
+
+Files:
+countdown.html / countdown.css / countdown.js — the public timer display
+admin.html / admin.css / admin.js — the admin panel to set the target date/time
+server.js + package.json — tiny Node/Express server with a JSON file as the "database" (timer-data.json), exposing GET/POST /api/timer so both pages stay in sync no matter who's watching
+A README.md explaining how to run it
+
 ```
 
 ---
 
-## Installation Guide
+## Key logic decisions:
 
-### Step 1: Clone the Repository
-
-```bash
-git clone https://github.com/YOUR_USERNAME/al-exam-timer.git
-```
-
-Move into the project directory:
-
-```bash
-cd al-exam-timer
-```
-
----
-
-### Step 2: Install Dependencies
-
-```bash
-npm install
-```
-
----
-
-### Step 3: Configure MongoDB
-
-Make sure MongoDB is installed and running on your computer.
-
-Create a `.env` file and add:
-
-```env
-MONGO_URI=mongodb://127.0.0.1:27017/alexamtimer
-```
-
----
-
-### Step 4: Start the Server
-
-```bash
-node server.js
-```
-
-After starting the server, open:
-
-**Student Countdown Page**
-
-```text
-http://localhost:3000/countdown
-```
-
-**Administrator Page**
-
-```text
-http://localhost:3000/admin
-```
-
----
+Server stores the target end datetime (absolute timestamp), not a duration — so countdown is always correct regardless of when a viewer loads the page, page refreshes, etc.
+Server also stores the original total duration (computed at the moment admin sets it) so the circle's progress fill can be calculated as % elapsed.
+Countdown page polls the server every few seconds for updates (so if admin changes the timer mid-countdown, viewers update) and recalculates remaining time client-side every second using Date.now() vs stored target.
+Circle uses an SVG stroke-dasharray approach for the progress ring, with color interpolated between #688CD9 and #8E0204 based on % elapsed.
+Text color (the digits) also interpolates from #46169A/#6317E5 toward #8E0204.
+Auto-hide year/month/day if they're zero, re-center remaining units, and bump font size to match the "row 1" sizing when that row is empty and only hours/min/sec remain.
+Motivational sentence rotates every 60 seconds from a fixed array.
 
 ## How the System Works
 
@@ -229,10 +152,10 @@ This project was developed as a personal project with the goal of creating a sim
 ---
 
 ## Author
+**Author - Lahiru Lakshan**
+**Contributor - Gayantha Hashan**
 
-**Gayantha Hashan**
-
-Health Information and Communication Technology Undergraduate
+Health Information and Communication Technology Undergraduates
 
 Sri Lanka
 
