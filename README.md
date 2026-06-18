@@ -72,15 +72,13 @@ This project was developed using:
 
 ## Folder Structure
 
-```text
+---
 
 Files:
 countdown.html / countdown.css / countdown.js — the public timer display
 admin.html / admin.css / admin.js — the admin panel to set the target date/time
 server.js + package.json — tiny Node/Express server with a JSON file as the "database" (timer-data.json), exposing GET/POST /api/timer so both pages stay in sync no matter who's watching
-A README.md explaining how to run it
-
-```
+A README.md explaining how to run it.
 
 ---
 
