@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AL EXAM TIMER – Admin</title>
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+
+  <!-- NAVBAR (matching countdown page) -->
+  <nav class="navbar">
+    <span class="nav-brand">AL TIMER</span>
+    <span class="nav-brand">AL TIMER</span>
+  </nav>
+
+  <main class="admin-main">
+    <div class="admin-card">
+      <div class="card-header">
+        <h1 class="card-title">ADMIN PANEL</h1>
+        <p class="card-sub">SET EXAM COUNTDOWN TARGET</p>
+      </div>
+
+      <!-- STATUS BANNER -->
+      <div class="status-banner" id="statusBanner">
+        <span id="statusText">No timer set.</span>
+      </div>
+
+      <!-- CALENDAR PICKER -->
+      <section class="section">
+        <label class="section-label">SELECT DATE</label>
+        <div class="calendar-wrap">
+          <!-- Month navigation -->
+          <div class="cal-header">
+            <button class="cal-nav" id="prevMonth">&#9664;</button>
+            <span class="cal-month-year" id="calMonthYear">June 2026</span>
+            <button class="cal-nav" id="nextMonth">&#9654;</button>
+          </div>
+          <!-- Day headers -->
+          <div class="cal-grid cal-days-header">
+            <span>SUN</span><span>MON</span><span>TUE</span>
+            <span>WED</span><span>THU</span><span>FRI</span><span>SAT</span>
+          </div>
+          <!-- Day cells (populated by JS) -->
+          <div class="cal-grid cal-days" id="calDays"></div>
+        </div>
+        <p class="selected-date-display" id="selectedDateDisplay">No date selected</p>
+      </section>
+
+      <!-- TIME PICKER -->
+      <section class="section">
+        <label class="section-label">SET TIME</label>
+        <div class="time-picker">
+          <div class="time-field">
+            <label>HOUR (0-23)</label>
+            <input type="number" id="inputHour" min="0" max="23" value="0" placeholder="HH" />
+          </div>
+          <div class="time-sep">:</div>
+          <div class="time-field">
+            <label>MINUTE</label>
+            <input type="number" id="inputMin" min="0" max="59" value="0" placeholder="MM" />
+          </div>
+          <div class="time-sep">:</div>
+          <div class="time-field">
+            <label>SECOND</label>
+            <input type="number" id="inputSec" min="0" max="59" value="0" placeholder="SS" />
+          </div>
+        </div>
+      </section>
+
+      <!-- SUBMIT -->
+      <div class="btn-row">
+        <button class="btn-set" id="btnSet">SET TIMER</button>
+        <button class="btn-clear" id="btnClear">CLEAR TIMER</button>
+      </div>
+
+      <!-- CURRENT TIMER INFO -->
+      <div class="timer-info" id="timerInfo" style="display:none;">
+        <p class="info-title">ACTIVE TIMER</p>
+        <p class="info-val" id="infoTarget">—</p>
+        <p class="info-label">Countdown page updates automatically.</p>
+      </div>
+    </div>
+  </main>
+
+  <script src="admin.js"></script>
+</body>
+</html>
