@@ -13,7 +13,8 @@
 :root {
   --color-nav:        #688CD9;
   --color-ring-fill:  #688CD9;
-  --color-ring-bg:    #e5ecea;
+  --inner-ring-fill-color:#e5ecea;
+  --color-ring-bg:    #D1EBEF;
   --color-top-val:    #46169A;
   --color-bot-val:    #6317E5;
   --color-label:      #8E8E8E;
@@ -107,8 +108,8 @@ body {
 /* ====== CIRCLE WRAPPER ====== */
 .circle-wrapper {
   position: relative;
-  width: min(55vw, 55vh, 420px);
-  height: min(55vw, 55vh, 420px);
+  width: min(85vw, 85vh, 420px);
+  height: min(85vw, 85vh, 420px);
   flex-shrink: 0;
 }
 
@@ -146,8 +147,8 @@ body {
   width: 90%;
   height: 90%;
   border-radius: 50%;
-  background-color: var(--color-ring-fill);
-  opacity: 0.12;
+  background-color: var(--inner-ring-fill-color);
+  opacity: 0.112;
   transition: background-color 0.8s ease, opacity 0.8s ease;
   pointer-events: none;
 }
