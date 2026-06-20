@@ -260,3 +260,56 @@ if (motivationEl) {
 }
 tick();
 setInterval(tick, 1000);
+
+// ── MAIN TICK ─────────────────────────────────────────────────────────
+function tick() {
+  // 1. First, check if a date is passed directly in the browser's website link address bar
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlDate = urlParams.get('date'); // Looks for ?date=YYYY-MM-DDTHH:MM:SS
+
+  if (urlDate) {
+    targetTimestamp = new Date(urlDate).getTime();
+    
+    // Create a stable total duration based on when the link is processed
+    if (!totalDurationMs) {
+      totalDurationMs = targetTimestamp - Date.now();
+    }
+  } 
+  // 2. Fallback to your localStorage (if you are testing locally on your admin machine)
+  else {
+    const stored = localStorage.getItem("al_exam_target");
+    if (!stored) {
+      // 3. Fallback to our hardcoded default if no URL param or localStorage exists
+      targetTimestamp = DEFAULT_TARGET_MS;
+      totalDurationMs = DEFAULT_TOTAL_DURATION;
+    } else {
+      const data = JSON.parse(stored);
+      targetTimestamp = data.target;
+      totalDurationMs = data.totalDuration;
+    }
+  }
+
+  const now       = Date.now();
+  const remaining = targetTimestamp - now;
+
+  if (remaining <= 0) {
+    // Timer ended
+    const done = { years:0, months:0, days:0, hours:0, mins:0, secs:0 };
+    updateLayout(done);
+    setRingProgress(1);
+    applyColours(1);
+    document.body.classList.add("timer-ended");
+    if (motivationEl) motivationEl.textContent = "TIME IS UP! GOOD LUCK!";
+    return;
+  }
+
+  // Elapsed ratio for ring & colour (0 at start → 1 at end)
+  const elapsed = totalDurationMs - remaining;
+  const ratio   = totalDurationMs > 0 ? Math.min(elapsed / totalDurationMs, 1) : 0;
+
+  const b = breakdown(remaining);
+  updateLayout(b);
+  setRingProgress(ratio);
+  applyColours(ratio);
+  updateMotivation();
+}
