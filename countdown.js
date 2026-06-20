@@ -1,6 +1,7 @@
 /* =====================================================================
    countdown.js  –  AL EXAM TIMER (countdown side)
-   Reads target datetime from localStorage (set by admin page).
+   Reads target datetime from localStorage (set by admin page) or
+   defaults to the hardcoded date: August 10, 2026.
    Polls every second for live countdown.
    ===================================================================== */
 
@@ -24,6 +25,12 @@ const MOTIVATIONS = [
   "YOUR EFFORT DEFINES YOU!",
   "FOCUS ON THE GOAL!",
 ];
+
+// ── HARDCODED TARGET DATE DEFAULTS (10.08.2026) ───────────────────────
+const DEFAULT_TARGET_ISO = "2026-08-10T00:00:00"; 
+const DEFAULT_TARGET_MS  = new Date(DEFAULT_TARGET_ISO).getTime();
+// Dynamically set total duration from the exact moment the script loads to the exam day
+const DEFAULT_TOTAL_DURATION = DEFAULT_TARGET_MS - Date.now();
 
 // ── DOM REFS ──────────────────────────────────────────────────────────
 const ringProgress  = document.getElementById("ringProgress");
@@ -80,9 +87,9 @@ function lerpColor(ratio) {
 function applyColours(ratio) {
   const col = lerpColor(ratio);
   // navbar + circle inner bg
-  navbar.style.backgroundColor = col;
-  ringProgress.style.stroke    = col;
-  circleBefore.style.setProperty("--color-ring-fill", col);
+  if (navbar) navbar.style.backgroundColor = col;
+  if (ringProgress) ringProgress.style.stroke    = col;
+  if (circleBefore) circleBefore.style.setProperty("--color-ring-fill", col);
 
   // top row values
   topVals.forEach(el => el.style.color = col);
@@ -103,7 +110,7 @@ function applyColours(ratio) {
 function setRingProgress(ratio) {
   // ratio = 0 → empty, ratio = 1 → full ring (clock fills as time passes)
   const offset = CIRCUMFERENCE * (1 - ratio);
-  ringProgress.style.strokeDashoffset = offset;
+  if (ringProgress) ringProgress.style.strokeDashoffset = offset;
 }
 
 // ── TIME BREAKDOWN ────────────────────────────────────────────────────
@@ -130,55 +137,65 @@ function updateLayout(b) {
   const hasTop = b.years > 0 || b.months > 0 || b.days > 0;
 
   if (hasTop) {
-    rowTop.classList.remove("hidden");
+    if (rowTop) rowTop.classList.remove("hidden");
 
     // Selectively show year / month / day units + separators
     const showYear  = b.years  > 0;
     const showMonth = b.months > 0;
     const showDay   = b.days   > 0;
 
-    document.getElementById("unitYear").classList.toggle("hidden",  !showYear);
-    document.getElementById("unitMonth").classList.toggle("hidden", !showMonth);
-    document.getElementById("unitDay").classList.toggle("hidden",   !showDay);
+    const uYear = document.getElementById("unitYear");
+    const uMonth = document.getElementById("unitMonth");
+    const uDay = document.getElementById("unitDay");
+
+    if (uYear) uYear.classList.toggle("hidden",  !showYear);
+    if (uMonth) uMonth.classList.toggle("hidden", !showMonth);
+    if (uDay) uDay.classList.toggle("hidden",   !showDay);
 
     // Separators: between year-month and month-day
-    const seps = rowTop.querySelectorAll(".top-sep");
-    // sep[0] = between year & month, sep[1] = between month & day
-    if (seps[0]) seps[0].classList.toggle("hidden", !showYear || !showMonth);
-    if (seps[1]) seps[1].classList.toggle("hidden", !(showMonth || showYear) || !showDay);
+    if (rowTop) {
+      const seps = rowTop.querySelectorAll(".top-sep");
+      if (seps[0]) seps[0].classList.toggle("hidden", !showYear || !showMonth);
+      if (seps[1]) seps[1].classList.toggle("hidden", !(showMonth || showYear) || !showDay);
+    }
 
-    valYear.textContent  = pad(b.years);
-    valMonth.textContent = pad(b.months);
-    valDay.textContent   = pad(b.days);
+    if (valYear) valYear.textContent  = pad(b.years);
+    if (valMonth) valMonth.textContent = pad(b.months);
+    if (valDay) valDay.textContent   = pad(b.days);
 
     // Bottom row uses normal smaller size
-    rowBottom.querySelectorAll(".bottom-val").forEach(el => {
-      el.style.removeProperty("font-size");
-    });
-    rowBottom.querySelectorAll(".bottom-sep").forEach(el => {
-      el.style.removeProperty("font-size");
-    });
+    if (rowBottom) {
+      rowBottom.querySelectorAll(".bottom-val").forEach(el => {
+        el.style.removeProperty("font-size");
+      });
+      rowBottom.querySelectorAll(".bottom-sep").forEach(el => {
+        el.style.removeProperty("font-size");
+      });
+    }
 
   } else {
     // No years/months/days → hide top row, enlarge bottom row
-    rowTop.classList.add("hidden");
+    if (rowTop) rowTop.classList.add("hidden");
 
     // Upscale bottom row to match top-row font sizes
-    rowBottom.querySelectorAll(".bottom-val").forEach(el => {
-      el.style.fontSize = "clamp(24px, 5.5vw, 85px)";
-    });
-    rowBottom.querySelectorAll(".bottom-sep").forEach(el => {
-      el.style.fontSize = "clamp(24px, 5.5vw, 85px)";
-    });
+    if (rowBottom) {
+      rowBottom.querySelectorAll(".bottom-val").forEach(el => {
+        el.style.fontSize = "clamp(24px, 5.5vw, 85px)";
+      });
+      rowBottom.querySelectorAll(".bottom-sep").forEach(el => {
+        el.style.fontSize = "clamp(24px, 5.5vw, 85px)";
+      });
+    }
   }
 
-  valHour.textContent = pad(b.hours);
-  valMin.textContent  = pad(b.mins);
-  valSec.textContent  = pad(b.secs);
+  if (valHour) valHour.textContent = pad(b.hours);
+  if (valMin) valMin.textContent  = pad(b.mins);
+  if (valSec) valSec.textContent  = pad(b.secs);
 }
 
 // ── MOTIVATION ROTATION ───────────────────────────────────────────────
 function updateMotivation() {
+  if (!motivationEl) return;
   const currentMinute = Math.floor(Date.now() / 60000);
   if (currentMinute !== lastMotivationMinute) {
     lastMotivationMinute = currentMinute;
@@ -194,22 +211,15 @@ function updateMotivation() {
 // ── MAIN TICK ─────────────────────────────────────────────────────────
 function tick() {
   const stored = localStorage.getItem("al_exam_target");
+  
   if (!stored) {
-    // No target set – show dashes
-    valYear.textContent = "--";
-    valMonth.textContent = "--";
-    valDay.textContent = "--";
-    valHour.textContent = "--";
-    valMin.textContent = "--";
-    valSec.textContent = "--";
-    updateMotivation();
-    return;
-  }
-
-  const data = JSON.parse(stored);
-  targetTimestamp = data.target;
-
-  if (!totalDurationMs || totalDurationMs !== data.totalDuration) {
+    // FALLBACK: Use your requested 10.08.2026 date if localStorage is empty
+    targetTimestamp = DEFAULT_TARGET_MS;
+    totalDurationMs = DEFAULT_TOTAL_DURATION;
+  } else {
+    // Admin override exists in localStorage
+    const data = JSON.parse(stored);
+    targetTimestamp = data.target;
     totalDurationMs = data.totalDuration;
   }
 
@@ -223,7 +233,7 @@ function tick() {
     setRingProgress(1);
     applyColours(1);
     document.body.classList.add("timer-ended");
-    motivationEl.textContent = "TIME IS UP! GOOD LUCK!";
+    if (motivationEl) motivationEl.textContent = "TIME IS UP! GOOD LUCK!";
     return;
   }
 
@@ -244,7 +254,62 @@ window.addEventListener("storage", (e) => {
 });
 
 // ── INIT ──────────────────────────────────────────────────────────────
-motivationEl.textContent = MOTIVATIONS[0];
-motivationIndex = 1;
+if (motivationEl) {
+  motivationEl.textContent = MOTIVATIONS[0];
+  motivationIndex = 1;
+}
 tick();
 setInterval(tick, 1000);
+
+// ── MAIN TICK ─────────────────────────────────────────────────────────
+function tick() {
+  // 1. First, check if a date is passed directly in the browser's website link address bar
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlDate = urlParams.get('date'); // Looks for ?date=YYYY-MM-DDTHH:MM:SS
+
+  if (urlDate) {
+    targetTimestamp = new Date(urlDate).getTime();
+    
+    // Create a stable total duration based on when the link is processed
+    if (!totalDurationMs) {
+      totalDurationMs = targetTimestamp - Date.now();
+    }
+  } 
+  // 2. Fallback to your localStorage (if you are testing locally on your admin machine)
+  else {
+    const stored = localStorage.getItem("al_exam_target");
+    if (!stored) {
+      // 3. Fallback to our hardcoded default if no URL param or localStorage exists
+      targetTimestamp = DEFAULT_TARGET_MS;
+      totalDurationMs = DEFAULT_TOTAL_DURATION;
+    } else {
+      const data = JSON.parse(stored);
+      targetTimestamp = data.target;
+      totalDurationMs = data.totalDuration;
+    }
+  }
+
+  const now       = Date.now();
+  const remaining = targetTimestamp - now;
+
+  if (remaining <= 0) {
+    // Timer ended
+    const done = { years:0, months:0, days:0, hours:0, mins:0, secs:0 };
+    updateLayout(done);
+    setRingProgress(1);
+    applyColours(1);
+    document.body.classList.add("timer-ended");
+    if (motivationEl) motivationEl.textContent = "TIME IS UP! GOOD LUCK!";
+    return;
+  }
+
+  // Elapsed ratio for ring & colour (0 at start → 1 at end)
+  const elapsed = totalDurationMs - remaining;
+  const ratio   = totalDurationMs > 0 ? Math.min(elapsed / totalDurationMs, 1) : 0;
+
+  const b = breakdown(remaining);
+  updateLayout(b);
+  setRingProgress(ratio);
+  applyColours(ratio);
+  updateMotivation();
+}
