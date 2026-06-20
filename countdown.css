@@ -147,8 +147,8 @@ body {
   width: 90%;
   height: 90%;
   border-radius: 50%;
-  background-color: var(--inner-ring-fill-color);
-  opacity: 0.112;
+  background-color: var(--color-ring-bg);
+  opacity: 0.119;
   transition: background-color 0.8s ease, opacity 0.8s ease;
   pointer-events: none;
 }
